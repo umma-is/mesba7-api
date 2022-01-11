@@ -7,4 +7,4 @@ MarkupSafe==2.0.1
 PyArabic==0.6.14
 six==1.16.0
 Werkzeug==2.0.2
-flask_cors=3.0.10
+flask_cors==3.0.10
