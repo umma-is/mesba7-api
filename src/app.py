@@ -2,6 +2,7 @@ from flask import Flask
 import arrand.arrandom
 from flask_cors import CORS
 from flask import request
+import re
 
 
 app = Flask(__name__)
@@ -49,6 +50,7 @@ def phrase():
 @app.route("/poem")
 def poem():
     t = arrand.arrandom.poem()
+    t = clean_results(t, "poem")
     return {
         "result": t
     }
@@ -74,7 +76,48 @@ def sample():
                 v = True
             vocalized = v
 
-    t = arrand.arrandom.sample(category=category, vocalized=vocalized, max_length=max_length)
+    t = []
+    needed_count = max_length
+    while needed_count > 0:
+        res = arrand.arrandom.sample(category=category, vocalized=vocalized, max_length=needed_count)
+        res = clean_results(res, category)
+        t.extend(res)
+        needed_count -= len(res)
+
     return {
         "result": t
     }
+
+def clean_results(res, category):
+    new_res = []
+    for r in res:
+        if r == '':
+            continue
+        elif len(r) < 30:
+            continue
+        elif '****' in r:
+            continue
+        elif 'a' in r:
+            # skip if its in english
+            continue
+
+        if '</t>' in r:
+            r.replace('</t>', '')
+        elif r[-1] == '/':
+            r = r[:-1]
+
+        # if string starts with number, remove the number
+        if r[:1].isdigit() and category == "poem":
+            r = r[2:]
+
+        print(r[-1])
+
+        r.strip()
+        r.strip('/')
+        r.strip('\/')
+        r.strip('\\')
+        r.strip(' /')
+
+        new_res.append(r)
+
+    return new_res
