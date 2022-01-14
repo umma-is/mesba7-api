@@ -12,45 +12,31 @@ CORS(app)
 def index():
     return 'ok'
 
-@app.route("/text")
-def text():
-    t = arrand.arrandom.select()
-    return {
-        "result": t
-    }
+@app.route('/random')
+def random():
+    max_length = 4
+    vocalized = False
 
-@app.route("/hadith")
-def hadith():
-    t = arrand.arrandom.hadith()
-    return {
-        "result": t
-    }
+    if request.args:
+        args = request.args
 
-@app.route("/aya")
-def aya():
-    t = arrand.arrandom.aya()
-    return {
-        "result": t
-    }
+        if "sentences_count" in args:
+            max_length = int(args["sentences_count"])
 
-@app.route("/proverb")
-def proverb():
-    t = arrand.arrandom.proverb()
-    return {
-        "result": t
-    }
+        if "vocalized" in args:
+            v = False
+            if args["vocalized"].lower() == "true":
+                v = True
+            vocalized = v
+    
+    t = []
+    needed_count = max_length
+    while needed_count > 0:
+        res = arrand.arrandom.rand_sentences(needed_count)
+        res = clean_results(res, "")
+        t.extend(res)
+        needed_count -= len(res)
 
-@app.route("/phrase")
-def phrase():
-    t = arrand.arrandom.phrase()
-    return {
-        "result": t
-    }
-
-@app.route("/poem")
-def poem():
-    t = arrand.arrandom.poem()
-    t = clean_results(t, "poem")
     return {
         "result": t
     }
@@ -64,8 +50,8 @@ def sample():
     if request.args:
         args = request.args
 
-        if "paragraphs" in args:
-            max_length = int(args["paragraphs"])
+        if "sentences_count" in args:
+            max_length = int(args["sentences_count"])
 
         if "category" in args:
             category = args["category"]
