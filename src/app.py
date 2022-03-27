@@ -47,7 +47,8 @@ def random():
 
 @app.route('/sample')
 def sample():
-    max_length = 4
+    max_length = 10
+    needed_count = 0
     category = "text"
     vocalized = False
 
@@ -55,7 +56,11 @@ def sample():
         args = request.args
 
         if "sentences_count" in args:
-            max_length = int(args["sentences_count"])
+            needed_count = int(args["sentences_count"])
+            if needed_count > max_length:
+                # if user requested more than the allowed max_length,
+                # override the request's value with the max length
+                needed_count = max_length
 
         if "category" in args:
             category = args["category"]
@@ -67,7 +72,6 @@ def sample():
             vocalized = v
 
     t = []
-    needed_count = max_length
     while needed_count > 0:
         res = arrand.arrandom.sample(category=category, vocalized=vocalized, max_length=needed_count)
         res = clean_results(res, category)
