@@ -14,14 +14,19 @@ def index():
 
 @app.route('/random')
 def random():
-    max_length = 4
+    max_length = 10
+    needed_count = max_length
     vocalized = False
 
     if request.args:
         args = request.args
 
         if "sentences_count" in args:
-            max_length = int(args["sentences_count"])
+            needed_count = int(args["sentences_count"])
+            if needed_count > max_length:
+                # if user requested more than the max_length,
+                # limit the requedt to only get the allowed max_length
+                needed_count = max_length
 
         if "vocalized" in args:
             v = False
@@ -30,8 +35,7 @@ def random():
             vocalized = v
     
     t = []
-    needed_count = max_length
-    while needed_count > 0:
+    while needed_count > 0 & needed_count < max_length:
         res = arrand.arrandom.rand_sentences(needed_count)
         res = clean_results(res, "")
         t.extend(res)
@@ -95,8 +99,6 @@ def clean_results(res, category):
         # if string starts with number, remove the number
         if r[:1].isdigit() and category == "poem":
             r = r[2:]
-
-        print(r[-1])
 
         r.strip()
         r.strip('/')
